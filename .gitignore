@@ -1,4 +1,7 @@
+JHUTestIngest.csv
 .DS_Store
 data/*
 *.test
 *.yml
+__pycache__/*
+*.pyc
