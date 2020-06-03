@@ -1,0 +1,3 @@
+general:
+    resturl: https://jscholarship.library.jhu.edu/rest 
+    items: False
