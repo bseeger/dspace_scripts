@@ -13,9 +13,9 @@ from os import path
 # since: March 2020
 
 from ingest_1_uuid import item_uuids as uuids_1
-#from ingest_2_uuid import item_uuids as uuids_2
+from ingest_2_uuid import item_uuids as uuids_2
 #
-item_uuids = uuids_1
+item_uuids = uuids_1 + uuids_2
 
 # or
 #item_uuids = [
