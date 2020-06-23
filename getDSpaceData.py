@@ -8,7 +8,7 @@ import csv
 # This script simply reads data from dspace and outputs a csv file 
 # containing information about the communities (and subcommunities) 
 # and collections w/i those communities. Since it doesn't 
-# authenticated, only public data is gathered.
+# authenticate, only public data is gathered.
 #
 # There is an option to include items in the collections
 # by setting "items" to True in the config.yml file

@@ -13,9 +13,9 @@ from os import path
 # since: March 2020
 
 from ingest_1_uuid import item_uuids as uuids_1
-from ingest_2_uuid import item_uuids as uuids_2
+#from ingest_2_uuid import item_uuids as uuids_2
 #
-item_uuids = uuids_1 + uuids_2
+item_uuids = uuids_1
 
 # or
 #item_uuids = [
@@ -32,15 +32,14 @@ drupal_data_dir = "/var/www/html/drupal/web/modules/contrib/jhu_ingest_csv/data/
 rest_url = "https://jscholarship.library.jhu.edu/rest/"
 csv_schema = ["ID", "parent_id", "collection", "uuid", "date_accessioned", "date_available", "date issued",
               "identifier_other", "identifier_uri", "description", "language",
-              "publisher", "relation", "rights", "subject", "title",
-              "type", "model", "media_use", "mimetype", "sequence_id", "display", "file"]
+              "publisher", "relation", "rights", "subject", "title", "creator",
+              "type", "isformatof", "model", "media_use", "mimetype", "sequence_id", "display", "file"]
 
 def normalize_filename(filename):
     return filename.replace(' ', '_').replace('[', '_').replace(']', '_')
 
 def handle_metadata(meta_dict, data, verbose):
     keys = meta_dict.keys() 
-    # todo - make this more robust to handle the case where one of the items doesn't exist
     data.extend(
                 [
                  "" if "dc.date.accessioned" not in keys else meta_dict["dc.date.accessioned"], 
@@ -55,7 +54,9 @@ def handle_metadata(meta_dict, data, verbose):
                  "" if "dc.rights" not in keys else meta_dict["dc.rights"],
                  "" if "dc.subject" not in keys else meta_dict["dc.subject"],
                  "" if "dc.title" not in keys else meta_dict["dc.title"],
-                 "" if "dc.type" not in keys else meta_dict["dc.type"]
+                 "" if "dc.creator" not in keys else meta_dict["dc.creator"],
+                 "" if "dc.type" not in keys else meta_dict["dc.type"],
+                 "" if "dc.relation.isformatof" not in keys else meta_dict["dc.relation.isformatof"],
                 ])
 
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
             if verbose:
                 print(meta)
 
-            item_url_bin_info = rest_url + '/items/' + uuid + '/bitstreams'
+            item_url_bin_info = rest_url + '/items/' + uuid + '/bitstreams?limit=100'
             resp = requests.get(item_url_bin_info)
             if resp.status_code != requests.codes.ok:
                 print("failed to get bitstream info for ({}): {}".format(resp.status_code, item_url_bin_info))
@@ -110,7 +111,12 @@ if __name__ == '__main__':
 
             meta_dict = {}
             for i in meta:
-                meta_dict[i['key']] = i['value']
+                if i['key'] in meta_dict:
+                    meta_dict[i['key']] = meta_dict[i['key']] + '|' + i['value']
+                    print("key '{}' is now: {}".format(i['key'], meta_dict[i['key']]))
+                else: 
+                    meta_dict[i['key']] = i['value']
+
 
             handle_metadata(meta_dict, data, verbose)
 
